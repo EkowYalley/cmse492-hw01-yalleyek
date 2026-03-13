@@ -1,0 +1,13 @@
+region,category,total_units,total_revenue,orders,avg_revenue_per_order
+Northeast,hardware,7,1422.0,4,355.5
+Midwest,hardware,9,1071.0,4,267.75
+West,software,29,766.0,4,191.5
+South,hardware,7,751.0,4,187.75
+Northeast,software,23,704.0,4,176.0
+West,hardware,12,703.0,4,175.75
+Midwest,software,19,623.0,4,155.75
+South,software,17,538.0,4,134.5
+Northeast,office,35,323.5,4,80.88
+West,office,33,316.0,4,79.0
+Midwest,office,26,311.5,4,77.88
+South,office,25,287.0,4,71.75
