@@ -19,7 +19,7 @@ def resolve_project_root() -> Path:
 
 def configure_paths(project_root: Path) -> None:
     extra_paths = [
-        project_root / "my_scripts",
+        project_root /"pyfiles"/ "my_scripts",
         project_root / "utility",
     ]
     for p in extra_paths:
