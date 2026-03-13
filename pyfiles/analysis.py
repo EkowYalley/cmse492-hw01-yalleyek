@@ -46,8 +46,8 @@ def main() -> None:
     import seaborn as sns
     import matplotlib.pyplot as plt
 
-    sales_path = project_root / "datafiles" / "sales_jan.csv"
-    customers_path = project_root / "datafiles" / "customer_lookup.csv"
+    sales_path = project_root  / "datafiles" / "sales_jan.csv"
+    customers_path = project_root  /"datafiles" / "customer_lookup.csv"
 
     sales_df, customer_df = load_inputs(sales_path, customers_path)
     summary = build_summary_table(sales_df, customer_df)
