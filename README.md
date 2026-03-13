@@ -60,3 +60,32 @@ Path Errors: The script is designed to be run from the root directory (hw01-yall
 ModuleNotFoundError: Ensure you have deactivated any existing .venv or base environments before activating cmse492-env to avoid library conflicts.
 
 Encoding Issues: On some Windows systems, if the environment.yml is not recognized, ensure it is saved with UTF-8 encoding.
+
+7. Containerized Execution (Docker)
+For users who prefer not to manage local Python environments, this repository includes a Dockerfile to run the analysis in an isolated container.
+
+Step 1: Build the Image
+Build the Docker image using the following command from the root directory:
+
+Bash
+docker build -t project-analysis-docker .
+Step 2: Run the Analysis
+Run the container. This will trigger analysis.py automatically and print the results to your terminal:
+
+Bash
+docker run --name analysis-container project-analysis-docker
+Step 3: Retrieve Outputs
+Because Docker containers run in an isolated file system, you must copy the generated results (the CSV and PNG files) back to your local machine to view them:
+
+Bash
+docker cp analysis-container:/app/outputs ./docker_results
+This command creates a new folder called docker_results on your computer containing all the files generated during the Docker run.
+
+Why this is the ultimate "Reproducibility" step
+By following these steps, a user doesn't even need to have Python installed on their computer. Docker handles the OS, the Python version, and the library installations (Pandas, Seaborn, etc.) internally based on the instructions in your Dockerfile.
+
+Final Cleanup
+Once you have copied your files, you can remove the container to save space:
+
+Bash
+docker rm analysis-container
