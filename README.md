@@ -1,91 +1,102 @@
-CMSE 492: Project Repository - hw01-yalleyek
-1. Overview
-The purpose of this project is to automate the processing of regional sales data and customer lookups to generate high-level business summaries. This repository takes raw transaction logs, cleans and merges them with customer metadata, and produces both tabular summaries and data visualizations.
+# Regional Sales Reporting Pipeline
 
-Repository Structure:
+This project turns raw sales transactions and a customer lookup table into a validated regional-and-category reporting dataset and revenue chart. It demonstrates practical data cleaning, joins, aggregation, reconciliation, automated checks, and reproducible output generation.
 
-Plaintext
-hw01-yalleyek/
-├── datafiles/          # Raw input CSVs (sales and customers)
-├── pyfiles/            # Main analysis script and helper modules
-│   └── my_scripts/     # Core data cleaning logic
-├── outputs/            # Generated results (CSVs and PNGs)
-├── environment.yml     # Conda environment configuration
-└── README.md           # This file
-2. Data
-The analysis relies on two primary files located in the datafiles/ directory:
+## Workflow
 
-sales_jan.csv: Contains transaction records including dates, amounts, and region codes.
+```text
+sales transactions ─┐
+                    ├─ validate ─ join ─ aggregate ─ reconcile ─ report
+customer lookup ────┘
+```
 
-customer_lookup.csv: A mapping file used to connect sales data to specific customer demographics.
-Both files are provided as standard CSVs. If the data needs to be reset, ensure these files are placed in the datafiles/ folder before running the script.
+The pipeline:
 
-3. Environment Setup
-To ensure all dependencies (including the seaborn library used for the personal modification) are installed, follow these steps using Conda or Miniforge:
+1. Loads transaction and customer CSV files.
+2. Validates required columns, order IDs, dates, units, prices, and customer matches.
+3. Calculates line-level revenue as `units × unit_price`.
+4. Joins transactions to customer regions.
+5. Aggregates units, revenue, unique orders, average order revenue, and revenue share by region and category.
+6. Reconciles output revenue and order counts to the source.
+7. Exports a reporting table, chart, and machine-readable validation report.
 
-Step 1: Create the environment
+## Verified run
 
-PowerShell
-conda env create -f environment.yml
-Step 2: Activate the environment
+The included sample run completed successfully:
 
-PowerShell
-conda activate cmse492-env
-4. Reproduce a Result
-To reproduce the analysis and generate the summary files, execute the following command from the root of the repository:
+- Sales rows: **48**
+- Customers: **12**
+- Source revenue: **$7,816.00**
+- Reconciled summary revenue: **$7,816.00**
+- Summary rows: **12**
+- Automated pipeline checks passed: **8 of 8**
+- Unit tests passed: **4 of 4**
 
-PowerShell
-python pyfiles/analysis.py
-Expected Results:
-Upon completion, the following files will be created/updated in the outputs/ folder:
+The sample data are small and supplied for demonstration, so the project proves the workflow and validation logic rather than production scale.
 
-summary_by_region.csv: A processed table of regional metrics.
+## Validation
 
-revenue_by_region.png: A bar chart showing total revenue.
+The production run checks that:
 
-metric_correlations.png: A heatmap showing relationships between data variables.
+- Required columns are present.
+- Order IDs are unique.
+- Dates parse successfully.
+- Units are positive.
+- Prices are nonnegative.
+- Every transaction matches a customer.
+- Summary revenue reconciles to source revenue.
+- Summary order counts reconcile to unique source orders.
 
-5. Personal Analysis
-I modified the analysis pipeline to include a Statistical Correlation Heatmap.
+The unit tests also confirm that duplicate orders and unmatched customers are detected rather than silently accepted.
 
-Modification: I integrated the seaborn library into analysis.py to calculate a correlation matrix of all numeric variables in the summary table.
+## Repository structure
 
-Impact: This allows users to see not just the "totals" per region, but also how strongly variables like quantity and revenue are linked, helping identify outliers or data trends.
+```text
+.
+├── datafiles/
+│   ├── sales_jan.csv
+│   └── customer_lookup.csv
+├── pyfiles/
+│   ├── analysis.py
+│   └── my_scripts/
+│       ├── clean_data_v1.py
+│       └── plot_helpers.py
+├── tests/
+│   └── test_pipeline.py
+├── outputs/
+│   ├── summary_by_region.csv
+│   ├── revenue_by_region.png
+│   └── validation_report.json
+├── Dockerfile
+└── requirements.txt
+```
 
-New Output: The process now generates outputs/metric_correlations.png.
+## Reproduce
 
-6. Troubleshooting
-Path Errors: The script is designed to be run from the root directory (hw01-yalleyek). If you run it from inside pyfiles or datafiles, you will receive a FileNotFoundError. Always use python pyfiles/analysis.py.
+```bash
+python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements.txt
+.venv/Scripts/python pyfiles/analysis.py
+.venv/Scripts/python -m unittest discover -s tests -v
+```
 
-ModuleNotFoundError: Ensure you have deactivated any existing .venv or base environments before activating cmse492-env to avoid library conflicts.
+On macOS or Linux, use `.venv/bin/python` instead of `.venv/Scripts/python`.
 
-Encoding Issues: On some Windows systems, if the environment.yml is not recognized, ensure it is saved with UTF-8 encoding.
+## Outputs
 
-7. Containerized Execution (Docker)
-For users who prefer not to manage local Python environments, this repository includes a Dockerfile to run the analysis in an isolated container.
+- `summary_by_region.csv` provides the reporting-ready table.
+- `revenue_by_region.png` shows total revenue by region.
+- `validation_report.json` provides auditable pass/fail checks and source-to-output totals.
 
-Step 1: Build the Image
-Build the Docker image using the following command from the root directory:
+## Limitations
 
-Bash
-docker build -t project-analysis-docker .
-Step 2: Run the Analysis
-Run the container. This will trigger analysis.py automatically and print the results to your terminal:
+- The included dataset is a small demonstration sample, not a production sales system.
+- Revenue is calculated from the provided price and unit fields; discounts, returns, taxes, and shipping are not represented.
+- The pipeline runs as a batch process and does not include orchestration, incremental loading, or a database destination.
+- Region and customer attributes are treated as current values because no historical customer dimension is supplied.
 
-Bash
-docker run --name analysis-container project-analysis-docker
-Step 3: Retrieve Outputs
-Because Docker containers run in an isolated file system, you must copy the generated results (the CSV and PNG files) back to your local machine to view them:
+Earlier exploratory materials remain recoverable in repository history; the current branch contains the validated portfolio pipeline.
 
-Bash
-docker cp analysis-container:/app/outputs ./docker_results
-This command creates a new folder called docker_results on your computer containing all the files generated during the Docker run.
+## Skills demonstrated
 
-Why this is the ultimate "Reproducibility" step
-By following these steps, a user doesn't even need to have Python installed on their computer. Docker handles the OS, the Python version, and the library installations (Pandas, Seaborn, etc.) internally based on the instructions in your Dockerfile.
-
-Final Cleanup
-Once you have copied your files, you can remove the container to save space:
-
-Bash
-docker rm analysis-container
+Python, pandas, CSV ingestion, schema validation, data-quality checks, relational joins, aggregation, reconciliation, automated testing, Matplotlib, and reproducible reporting.

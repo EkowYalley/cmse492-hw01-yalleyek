@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "checks": {
+    "required_columns_present": true,
+    "order_ids_unique": true,
+    "dates_parse": true,
+    "units_positive": true,
+    "prices_nonnegative": true,
+    "all_customers_matched": true,
+    "summary_revenue_reconciles": true,
+    "summary_order_count_reconciles": true
+  },
+  "evidence": {
+    "sales_rows": 48,
+    "customer_rows": 12,
+    "duplicate_orders": 0,
+    "invalid_dates": 0,
+    "invalid_units": 0,
+    "invalid_prices": 0,
+    "unmatched_customers": 0,
+    "source_revenue": 7816.0,
+    "summary_revenue": 7816.0,
+    "summary_rows": 12
+  }
+}
